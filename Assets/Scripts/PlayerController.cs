@@ -4,6 +4,8 @@
 using UnityEngine.UI;
 
 using System.Collections;
+using UnityEngine.SceneManagement;
+using System;
 
 public class PlayerController : MonoBehaviour {
 	
@@ -20,7 +22,7 @@ public class PlayerController : MonoBehaviour {
 		// Assign the Rigidbody component to our private rb variable
 		rb = GetComponent<Rigidbody>();
         rend = GetComponent<Renderer>();
-	}
+    }
 
 	// Each physics step..
 	void FixedUpdate ()
@@ -40,12 +42,25 @@ public class PlayerController : MonoBehaviour {
 	// When this game object intersects a collider
     void OnCollisionEnter(Collision collision) 
 	{
-        // Set the player's Color to that od the collided object
-        Color hitColor = collision.transform.GetComponent<Renderer>().material.color;
-        rend.material.color = hitColor;
+        if (collision.gameObject.tag != "Neutral")
+        {
+            Color hitColor = collision.transform.GetComponent<Renderer>().material.color;
+            rend.material.color = hitColor;
+        }
+    }
 
-        //Find the Specular shader and change its Color to red
-     //   rend.material.shader = Shader.Find("Specular");
-     //   rend.material.SetColor("_SpecColor", Color.red);
+    void OnTriggerEnter(Collider trigger)
+    {
+        Color hitColor = trigger.transform.GetComponent<Renderer>().material.color;
+        Color playerColor = rend.material.color;
+        if (hitColor == playerColor)
+        {
+            Destroy(trigger.gameObject);
+            GameObject[] remainingPickUps = GameObject.FindGameObjectsWithTag("Pick Up");
+            if (remainingPickUps.GetLength(0) == 1)
+            {
+                Game.LoadNextLevel();
+            }
+        }
     }
 }
